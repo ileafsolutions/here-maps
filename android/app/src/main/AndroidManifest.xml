@@ -1,7 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.heremaps">
+  package="com.heremaps.app">
 
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /> <!-- To allow starting foreground services on Android P+ -->
+    <!-- https://developer.android.com/preview/behavior-changes#fg-svc -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
 
     <application
       android:name=".MainApplication"
@@ -21,6 +28,41 @@
         </intent-filter>
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
+        <activity android:name=".heremap.SplashActivity">
+        </activity>
+        <activity android:name=".heremap.MainActivity">
+
+        </activity>
+        <!--
+Developers should put application credentials here.To obtain them, please register the application
+         at https://developer.here.com/develop/mobile-sdks
+        -->
+        <meta-data
+            android:name="com.here.android.maps.appid"
+            android:value="2LHlGxryBICkltpvbEzW" />
+        <meta-data
+            android:name="com.here.android.maps.apptoken"
+            android:value="GxPGvWflvL8zqTh865nyqg" />
+        <meta-data
+            android:name="com.here.android.maps.license.key"
+            android:value="Z14Okfzjz4FELojKpU86T4NU6lqPxSy9RWY/XDc2Cry+3r/+LZHDAl27d3rId2MkflYyHeIQHCy6O3Ro+Yn4z/b5syFRBBD21UDyJ20VVWiiLienI+DHystboEFFo4djYWOATzhaMJL2CWakvsMdUGtN6g7NKOlWOjZmi9bLhZJ8d2IF8D1gQ0oe7l979olWAtzuUHiR59cLp7tMfirzrURqXVvWXEUYBCzdqSRR8Ycu7qoLyu8fHu1mm2/AwSeX83FcIpMBtNGfEZmiPLpNglcbpq2OXO9RPMTKNTPg2iq1NtbXPAmXqDFSRAIrenjMoFz8jJfGc0MusGg1Qo0kaqMrdyC2knsUlZYu2N1QNqmnp0VG+/7fdyK3cmWX+FFJPMISMcmc34QRDi1e2UoXXbktN0Hu+1dwG8jqOIwOmZzVe32Kt1CCN4sVqxXbfg1JlwYmUWn2Q1eq9r4hgup5oT8pgsVHKViKG4FmwOCNiOUlEQcN7dy+LboRJEyRH2Gk8h/VUcJZHUrBDgFZ62e5S6+7PTIef4STP43m8nTizV/DsNNHINzZooNpe/nVmPqsUJuSP5712D1yE8ODqIsRvp9hDlqlbUck0JBoY0ioc//w/1Ji0d4QpuzRc3UgMRFleQxSR3fQ7TImP1c2fk+2yzneeQgHC5C1LX6Aeocm1J8=" />
+        <!--
+Developers should always provide custom values for each of {YOUR_LABEL_NAME} and {YOUR_INTENT_NAME}.
+        Do not reuse HERE Mobile SDK defaults.
+        -->
+        <meta-data
+            android:name="INTENT_NAME"
+            android:value="ILEAF_MAP_INTENT" />
+
+        <service
+            android:name="com.here.android.mpa.service.MapService"
+            android:exported="false"
+            android:label="ILEAF_MAP_SERVICE">
+            <intent-filter>
+                <action android:name="ILEAF_MAP_INTENT" />
+            </intent-filter>
+        </service>
+        <service android:name=".heremap.ForegroundService" />
     </application>
 
 </manifest>
