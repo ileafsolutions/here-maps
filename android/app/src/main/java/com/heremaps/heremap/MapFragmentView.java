@@ -34,6 +34,9 @@ import com.here.android.mpa.common.GeoCoordinate;
 import com.here.android.mpa.common.GeoPosition;
 import com.here.android.mpa.common.OnEngineInitListener;
 import com.here.android.mpa.guidance.NavigationManager;
+import com.here.android.mpa.guidance.VoiceCatalog;
+import com.here.android.mpa.guidance.VoiceGuidanceOptions;
+import com.here.android.mpa.guidance.VoicePackage;
 import com.here.android.mpa.mapping.AndroidXMapFragment;
 import com.here.android.mpa.mapping.Map;
 import com.here.android.mpa.mapping.MapRoute;
@@ -50,6 +53,9 @@ import com.heremaps.app.R;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.List;
+
+import static android.content.ContentValues.TAG;
+import static com.heremaps.app.BuildConfig.DEBUG;
 
 /**
  * This class encapsulates the properties and functionality of the Map view.It also triggers a
@@ -273,8 +279,8 @@ public class MapFragmentView {
     private void startForegroundService() {
         if (!m_foregroundServiceStarted) {
             m_foregroundServiceStarted = true;
-            Intent startIntent = new Intent(m_activity, ForegroundService.class);
-            startIntent.setAction(ForegroundService.START_ACTION);
+            Intent startIntent = new Intent(m_activity, com.heremaps.app.heremap.ForegroundService.class);
+            startIntent.setAction(com.heremaps.app.heremap.ForegroundService.START_ACTION);
             m_activity.getApplicationContext().startService(startIntent);
         }
     }
@@ -282,8 +288,8 @@ public class MapFragmentView {
     private void stopForegroundService() {
         if (m_foregroundServiceStarted) {
             m_foregroundServiceStarted = false;
-            Intent stopIntent = new Intent(m_activity, ForegroundService.class);
-            stopIntent.setAction(ForegroundService.STOP_ACTION);
+            Intent stopIntent = new Intent(m_activity, com.heremaps.app.heremap.ForegroundService.class);
+            stopIntent.setAction(com.heremaps.app.heremap.ForegroundService.STOP_ACTION);
             m_activity.getApplicationContext().startService(stopIntent);
         }
     }
@@ -349,6 +355,8 @@ public class MapFragmentView {
         /* Register a PositionListener to monitor the position updates */
         m_navigationManager.addPositionListener(
                 new WeakReference<NavigationManager.PositionListener>(m_positionListener));
+
+                setupVoice();
     }
 
     private NavigationManager.PositionListener m_positionListener = new NavigationManager.PositionListener() {
@@ -400,4 +408,108 @@ public class MapFragmentView {
             m_navigationManager.stop();
         }
     }
+    private void setupVoice() {
+        // Retrieve the VoiceCatalog and download the latest updates
+        VoiceCatalog voiceCatalog = VoiceCatalog.getInstance();
+
+        if (!voiceCatalog.isLocalCatalogAvailable()) {
+            if (DEBUG) Log.d(TAG, "Voice catalog is not available in local storage.");
+            //Toast.makeText(mActivity.getApplicationContext(), "Voice catalog is not available in local storage.", Toast.LENGTH_LONG).show();
+
+            voiceCatalog.downloadCatalog(new VoiceCatalog.OnDownloadDoneListener() {
+                @Override
+                public void onDownloadDone(VoiceCatalog.Error error) {
+                    if (error == VoiceCatalog.Error.NONE) {
+                        // catalog download successful
+                        if (DEBUG) Log.d(TAG, "Download voice catalog successfully.");
+                        loadCatalog();
+
+                        //Toast.makeText(mActivity.getApplicationContext(), "Voice catalog download successful.", Toast.LENGTH_LONG).show();
+                    } else {
+                        if (DEBUG) Log.d(TAG, "Download voice catalog failed.");
+
+                        //Toast.makeText(mActivity.getApplicationContext(), "Voice catalog download error.", Toast.LENGTH_LONG).show();
+                    }
+
+
+
+
+                }
+            });
+        }
+
+        else
+        {
+            loadCatalog();
+        }
+
+    }
+
+    private void loadCatalog()
+    {
+        // Get the list of voice packages from the voice catalog list
+        List<VoicePackage> voicePackages =
+                VoiceCatalog.getInstance().getCatalogList();
+        if (voicePackages.size() == 0) {
+            if (DEBUG) Log.d(TAG, "Voice catalog size is 0.");
+
+            //Toast.makeText(mActivity.getApplicationContext(), "Voice catalog size is 0.", Toast.LENGTH_LONG).show();
+        }
+
+        long id = -1;
+        // select
+        for (VoicePackage voicePackage : voicePackages) {
+            if (voicePackage.getMarcCode().compareToIgnoreCase("eng") == 0) {
+                //if (voicePackage.isTts()) // TODO: need to figure out why always return false
+                {
+                    id = voicePackage.getId();
+                    break;
+                }
+            }
+        }
+
+        if (!VoiceCatalog.getInstance().isLocalVoiceSkin(id)) {
+            final long finalId = id;
+            VoiceCatalog.getInstance().downloadVoice(id, new VoiceCatalog.OnDownloadDoneListener() {
+                @Override
+                public void onDownloadDone(VoiceCatalog.Error error) {
+                    if (error == VoiceCatalog.Error.NONE) {
+                        //voice skin download successful
+                        if (DEBUG) Log.d(TAG, "Download voice skin successfully.");
+
+                        //Toast.makeText(mActivity.getApplicationContext(), "Voice skin download successful.", Toast.LENGTH_LONG).show();
+
+                        // set the voice skin for use by navigation manager
+                        if (VoiceCatalog.getInstance().getLocalVoiceSkin(finalId) != null) {
+                            // obtain VoiceGuidanceOptions object
+                            VoiceGuidanceOptions voiceGuidanceOptions = m_navigationManager.getVoiceGuidanceOptions();
+
+// set the voice skin for use by navigation manager
+                            voiceGuidanceOptions.setVoiceSkin(VoiceCatalog.getInstance().getLocalVoiceSkin(finalId));
+
+                        } else {
+                            if (DEBUG) Log.d(TAG, "Get local voice skin error.");
+
+                            //Toast.makeText(mActivity.getApplicationContext(), "Navi manager set voice skin error.", Toast.LENGTH_LONG).show();
+                        }
+
+                    } else {
+                        if (DEBUG) Log.d(TAG, "Download voice skin failed.");
+                        //Toast.makeText(mActivity.getApplicationContext(), "Voice skin download error.", Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            });
+        } else {
+            // set the voice skin for use by navigation manager
+            if (VoiceCatalog.getInstance().getLocalVoiceSkin(id) != null) {
+                VoiceGuidanceOptions voiceGuidanceOptions = m_navigationManager.getVoiceGuidanceOptions();
+                voiceGuidanceOptions.setVoiceSkin(VoiceCatalog.getInstance().getLocalVoiceSkin(id));
+            } else {
+                if (DEBUG) Log.d(TAG, "Get local voice skin error.");
+                //Toast.makeText(mActivity.getApplicationContext(), "Navi manager set voice skin error.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 }

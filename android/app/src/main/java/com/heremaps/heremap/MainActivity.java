@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -28,6 +29,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.heremaps.app.R;
+
+import static com.heremaps.app.heremap.BundleParamConstants.DESTINATION_LONG;
 
 
 /**
@@ -45,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.ACCESS_NETWORK_STATE
     };
 
-    private MapFragmentView m_mapFragmentView;
+    private com.heremaps.app.heremap.MapFragmentView m_mapFragmentView;
     Double start_latitude ;
     Double start_longitude ;
     Double destination_latitude;
@@ -57,13 +60,14 @@ public class MainActivity extends AppCompatActivity {
         Bundle bundle  = getIntent().getExtras();
         if (bundle!=null)
         {
-            if (bundle.containsKey(BundleParamConstants.START_LAT) && bundle.containsKey(BundleParamConstants.START_LONG) && bundle.containsKey(BundleParamConstants.DESTINATION_LAT) && bundle.containsKey(BundleParamConstants.DESTINATION_LONG))
+            if (bundle.containsKey(com.heremaps.app.heremap.BundleParamConstants.START_LAT) && bundle.containsKey(com.heremaps.app.heremap.BundleParamConstants.START_LONG) && bundle.containsKey(com.heremaps.app.heremap.BundleParamConstants.DESTINATION_LAT) && bundle.containsKey(com.heremaps.app.heremap.BundleParamConstants.DESTINATION_LONG))
             {
 
-                 start_latitude = bundle.getDouble(BundleParamConstants.START_LAT);
-                 start_longitude = bundle.getDouble(BundleParamConstants.START_LONG);
-                 destination_latitude = bundle.getDouble(BundleParamConstants.DESTINATION_LAT);
-                 destination_longitude = bundle.getDouble(BundleParamConstants.DESTINATION_LONG);
+                 start_latitude = bundle.getDouble(com.heremaps.app.heremap.BundleParamConstants.START_LAT);
+                 start_longitude = bundle.getDouble(com.heremaps.app.heremap.BundleParamConstants.START_LONG);
+                 destination_latitude = bundle.getDouble(com.heremaps.app.heremap.BundleParamConstants.DESTINATION_LAT);
+                 destination_longitude = bundle.getDouble(com.heremaps.app.heremap.BundleParamConstants.DESTINATION_LONG);
+
 
             }
         }
@@ -127,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupMapFragmentView() {
         // All permission requests are being handled. Create map fragment view. Please note
         // the HERE Mobile SDK requires all permissions defined above to operate properly.
-        m_mapFragmentView = new MapFragmentView(this,start_latitude,start_longitude,destination_latitude,destination_longitude);
+        m_mapFragmentView = new com.heremaps.app.heremap.MapFragmentView(this,start_latitude,start_longitude,destination_latitude,destination_longitude);
     }
 
     @Override

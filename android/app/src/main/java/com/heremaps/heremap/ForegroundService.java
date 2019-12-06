@@ -28,6 +28,7 @@ import android.os.IBinder;
 
 import androidx.core.app.NotificationCompat;
 
+import com.heremaps.app.MainActivity;
 import com.heremaps.app.R;
 
 

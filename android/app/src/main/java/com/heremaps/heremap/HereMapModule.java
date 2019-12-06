@@ -35,12 +35,12 @@ public class HereMapModule extends ReactContextBaseJavaModule{
         Double start_longitude_default = 76.3625102;
         Double destination_latitude_default = 10.0068604;
         Double destination_longitude_default = 76.3717159;
-        Intent newIntent = new Intent(getCurrentActivity(), MainActivity.class);
+        Intent newIntent = new Intent(getCurrentActivity(), com.heremaps.app.heremap.MainActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putDouble(BundleParamConstants.START_LAT, start_latitude != null ? start_latitude : start_latitude_default );
-        bundle.putDouble(BundleParamConstants.START_LONG,start_longitude != null ? start_longitude : start_longitude_default);
-        bundle.putDouble(BundleParamConstants.DESTINATION_LAT,destination_latitude != null ? destination_latitude : destination_latitude_default);
-        bundle.putDouble(BundleParamConstants.DESTINATION_LONG,destination_longitude != null ? destination_longitude : destination_longitude_default);
+        bundle.putDouble(com.heremaps.app.heremap.BundleParamConstants.START_LAT, start_latitude != null ? start_latitude : start_latitude_default );
+        bundle.putDouble(com.heremaps.app.heremap.BundleParamConstants.START_LONG,start_longitude != null ? start_longitude : start_longitude_default);
+        bundle.putDouble(com.heremaps.app.heremap.BundleParamConstants.DESTINATION_LAT,destination_latitude != null ? destination_latitude : destination_latitude_default);
+        bundle.putDouble(com.heremaps.app.heremap.BundleParamConstants.DESTINATION_LONG,destination_longitude != null ? destination_longitude : destination_longitude_default);
         newIntent.putExtras(bundle);
         getCurrentActivity().startActivity(newIntent);
        // Toast.makeText(getCurrentActivity(), "Hello Calling from android native", Toast.LENGTH_SHORT).show();
